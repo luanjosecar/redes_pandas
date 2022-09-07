@@ -237,7 +237,7 @@ class Player(SimpleModule):
         # set status to downloading a segment
         self.already_downloading = True
 
-        print(f'Execution Time {self.timer.get_current_time()} > request: {segment_request}')
+        #print(f'Execution Time {self.timer.get_current_time()} > request: {segment_request}')
 
         self.send_down(segment_request)
 
@@ -286,7 +286,7 @@ class Player(SimpleModule):
         self.already_downloading = False
 
         current_time = self.timer.get_current_time()
-        print(f'Execution Time {current_time} > received: {msg}')
+        #print(f'Execution Time {current_time} > received: {msg}')
 
         if msg.found():
             measured_throughput = msg.get_bit_length() / (time.perf_counter() - self.request_time)

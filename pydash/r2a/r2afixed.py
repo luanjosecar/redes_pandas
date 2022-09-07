@@ -25,24 +25,29 @@ class R2AFixed(IR2A):
 
     def handle_xml_request(self, msg):
         self.send_down(msg)
+        print("handler xml_request ==============")
 
     def handle_xml_response(self, msg):
         # getting qi list
         self.parsed_mpd = parse_mpd(msg.get_payload())
         self.qi = self.parsed_mpd.get_qi()
-
         self.send_up(msg)
+        print("handler XML_RESPONSE ==============")
 
     def handle_segment_size_request(self, msg):
         # time to define the segment quality choose to make the request
         msg.add_quality_id(self.qi[19])
         self.send_down(msg)
+        print("handler SEGMENTSIEZE ==============")
 
     def handle_segment_size_response(self, msg):
         self.send_up(msg)
+        print("handler SEGMENT RESPONSE ==============")
 
     def initialize(self):
+        print("handler INIT ==============")
         pass
 
     def finalization(self):
+        print("handler END ==============")
         pass
