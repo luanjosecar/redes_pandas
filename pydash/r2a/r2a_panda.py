@@ -22,8 +22,8 @@ class R2A_Panda(IR2A):
         self.avarage_bandwith = 0
         self.estimate_bandwith = 0
         self.timer_dif = 0
-        self.estimate_throughput = 0 #Estimated Bandwidth Share Available by the TCP Connection
-        self.smoothed_bandwidth = 0 #Bandwidth Share after Applying Smoothing/Filtering Function
+        self.estimate_throughput = 0 
+        self.smoothed_bandwidth = 0 
 
     def handle_xml_request(self, msg):
         self.send_down(msg)
@@ -70,7 +70,7 @@ class R2A_Panda(IR2A):
         print('new_bandwidth : ' + str(base_bandwith))
         print('bandwidth_shares : ' + str(self.smoothed_bandwidth))
         print('-------------------------------------------------------------------------------')
-        
+
         #Valores são alocados novamente
         self.avarage_bandwith = base_avg_bandwith
         self.smoothed_bandwidth = base_bandwith
