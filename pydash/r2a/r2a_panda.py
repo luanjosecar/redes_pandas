@@ -45,7 +45,7 @@ class R2A_Panda(IR2A):
     def handle_segment_size_request(self, msg):
 
 
-        
+        #Pega os valores os tempos internos
         self.timer_dif = abs(self.request_time - self.inter_request_timer)
         self.inter_request_timer = self.request_time
         self.request_time = time.perf_counter() 
@@ -56,11 +56,12 @@ class R2A_Panda(IR2A):
 
         #Fase 2 Suavização para produzir a versão y[n]
         base_bandwith = max(0.2*self.smoothed_bandwidth,smoothed_bandwidth())
+
         # Seleciona a qualidade de video com base na largura de banda obtida
         vd_quality = max([ band for band in self.qi if band < new_bandwidth] + [self.qi[0]])
         msg.add_quality_id(vd_quality)
         
-        #Valores são alocados novamente
+        
         print('-------------------------------------------------------------------------------')
         print('request_time : ' + str(self.request_time))
         print('timer_dif : ' + str(self.timer_dif))
@@ -69,6 +70,8 @@ class R2A_Panda(IR2A):
         print('new_bandwidth : ' + str(base_bandwith))
         print('bandwidth_shares : ' + str(self.smoothed_bandwidth))
         print('-------------------------------------------------------------------------------')
+        
+        #Valores são alocados novamente
         self.avarage_bandwith = base_avg_bandwith
         self.smoothed_bandwidth = base_bandwith
 
