@@ -14,7 +14,7 @@ class R2A_Panda(IR2A):
         self.w = 0 # Probing additive increase bitrate
         self.alpha = 0 # Smoothing convergence rate
         self.beta = 0 # Client buffer convergence rate
-        self.er = 0 # Multiplicative safety margin
+        self.er = 0 # Multiplicative safety margin --- Verificar a utilização
         self.B_min = 0 # Minimum client buffer duration
         
         self.request_time = 0
