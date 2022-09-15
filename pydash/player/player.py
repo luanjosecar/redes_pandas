@@ -15,6 +15,7 @@ import threading
 import time
 from matplotlib import pyplot as plt
 import statistics
+import csv
 
 from base.configuration_parser import ConfigurationParser
 from base.message import *
@@ -376,6 +377,12 @@ class Player(SimpleModule):
         plt.cla()
         plt.close()
 
+        
+
+        with open(f'./results/{file_name}.csv', 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows(zip(x, y))
+
     def logVlines(self, log, file_name, title, y_axis, x_axis='execution time (s)'):
         items = log.items
 
@@ -401,6 +408,10 @@ class Player(SimpleModule):
         plt.clf()
         plt.cla()
         plt.close()
+
+        with open(f'./results/{file_name}.csv', 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows(zip(x, y))
 
     def handle_xml_request(self, msg):
         # not applied
