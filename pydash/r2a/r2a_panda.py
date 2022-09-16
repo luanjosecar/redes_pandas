@@ -135,12 +135,12 @@ class R2A_Panda(IR2A):
         Inicialização do Codigo
         Define os valores Fixos
         '''
-        self.k = 0.15
-        self.beta = 0.3
-        self.B_min = 26
-        self.alpha = 0.2
-        self.w = 0.3
-        self.er = 0.15
+        self.k = 0.20
+        self.beta = 0.7
+        self.B_min = 30
+        self.alpha = 0.8
+        self.w = 2000
+        self.er = 0.2
         pass
 
     def finalization(self):
