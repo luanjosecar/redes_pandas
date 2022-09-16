@@ -1,0 +1,9 @@
+    def initialize(self):
+        #Rodar mais vezes com base nos algoritimos citados lá
+        self.k = 3
+        self.beta = 0.2
+        self.B_min = 26
+        self.alpha = 0.2
+        self.w = 0.3
+        self.er = 0.2
+        pass

@@ -5,6 +5,9 @@ import gc
 
 class R2A_Panda(IR2A):
     def __init__(self, id):
+        '''
+        Inicialização de todas as tabelas que serão utilizadas no sistema
+        '''
         IR2A.__init__(self, id)
         self.qi = []
 
@@ -31,6 +34,9 @@ class R2A_Panda(IR2A):
         self.send_down(msg)
 
     def handle_xml_response(self, msg):
+        '''
+        Retorna os possiveis valores de requisição
+        '''
         parsed_mpd = parse_mpd(msg.get_payload())
         self.qi = parsed_mpd.get_qi()
 
@@ -41,7 +47,9 @@ class R2A_Panda(IR2A):
         '''
         Calculo para obter a taxa de tranferência esperada do sistema
         '''
-        return self.k*self.timer_dif*(self.w-max(0,self.avarage_bandwith - self.estimate_throughput+ self.w ))+self.avarage_bandwith
+        base = self.k*self.timer_dif*self.w
+        value = -max(0,self.avarage_bandwith - self.estimate_throughput+ self.w )*self.k*self.timer_dif
+        return base + value + self.avarage_bandwith
 
     def smoothed_bandwidth(self):
         '''
@@ -53,61 +61,68 @@ class R2A_Panda(IR2A):
         '''
         Criação de uma zona morta para evitar perdas muito grandes no sistema
         '''
-
         if(new_request > self.result_request+(self.result_request*self.er)):
             return new_request
         if(new_request < self.result_request):
-            return new_request
+            return self.result_request*(self.er-1)
         return self.result_request
 
+    def dead_zone_one_up_down(self,new_request):
+        '''
+        Criação de uma zona morta para evitar perdas muito grandes no sistema
+        Código para testes retorna a variação de apenas 1 nivel de qualidade
+        '''
+        if(new_request == 0):
+            index = 0
+        else:
+            index = self.qi.index(self.result_request)
+
+        if(new_request > self.result_request+(self.result_request*self.er)):
+            if(index < len(self.qi)-2):
+                return self.qi[index+1]
+        if(new_request < self.result_request):
+            if(index > 0):
+                return self.qi[index-1]
+        return self.qi[index]
+
     def handle_segment_size_request(self, msg):
+        '''
+        Função para a lógica de requisições
+        '''
 
-
-        #Pega os valores os tempos internos
+        #Define os valores temporais
+        self.timer_dif = abs(self.request_time - self.inter_request_timer)
         self.inter_request_timer = self.request_time
         self.request_time = time.perf_counter() 
-        self.timer_dif = self.request_time - self.inter_request_timer
         
-        
-
         #Fase 1 Estimativa da largura de banda 
-        #base_avg_bandwith = max(0.2*self.avarage_bandwith,self.get_bandwith_share())
-        base_avg_bandwith = self.get_bandwith_share()
+        base_avg_bandwith = max(self.er*self.avarage_bandwith,self.get_bandwith_share())
         self.avarage_bandwith = base_avg_bandwith
 
         #Fase 2 Suavização para produzir a versão y[n]
-        #base_bandwith = max(0.2*self.result_bandwidth,self.smoothed_bandwidth())
-        base_bandwith = self.smoothed_bandwidth()
+        base_bandwith = max(self.er*self.result_bandwidth,self.smoothed_bandwidth())
         self.result_bandwidth = base_bandwith
 
-        # Seleciona a qualidade de video com base na largura de banda obtida
-        new_request = max([ band for band in self.qi if band < base_bandwith] + [self.qi[0]])
-        vd_quality = self.dead_zone_quant(new_request)
-        msg.add_quality_id(vd_quality)
-        self.result_request = vd_quality
-        
-        
-        print('-------------------------------------------------------------------------------')
-        print('request_time : ' + str(self.request_time))
-        print('timer_dif : ' + str(self.inter_request_timer))
-        print('timer_dif : ' + str(self.timer_dif))
-        print('new_avarage : ' + str(base_avg_bandwith))
-        print('new_bandwidth : ' + str(base_bandwith))
-        print('vd_quality : ' +str(vd_quality))
-        print('-------------------------------------------------------------------------------')
 
-        
-        
+        # Seleciona a qualidade de video com base na largura de banda obtida
+        vd_quality = self.dead_zone_quant(base_bandwith)
+
+        #new_request = max([ band for band in self.qi if band < vd_quality] + [self.qi[0]])
+        new_request = self.dead_zone_one_up_down(base_bandwith)
+        msg.add_quality_id(new_request)
+        self.result_request = new_request
+           
 
         self.send_down(msg)
 
     def handle_segment_size_response(self, msg):  
+        '''
+        Lida com a resposta e pausas da implementação
+        '''
         self.response_time = time.perf_counter() - self.request_time
         self.estimate_throughput = msg.get_bit_length()/self.response_time
 
-        print("ESTIMATED TH: " + str(self.estimate_throughput))
-
-    
+        #Pausa para o caso do buffer maior que o esperado
         if self.whiteboard.get_playback_buffer_size():
             time_for_next_request = self.beta*(self.whiteboard.get_playback_buffer_size()[-1][1] - self.B_min)
             time.sleep(max([0,time_for_next_request]))
@@ -116,9 +131,12 @@ class R2A_Panda(IR2A):
 
 
     def initialize(self):
-        #Rodar mais vezes com base nos algoritimos citados lá
-        self.k = 0.56
-        self.beta = 0.2
+        '''
+        Inicialização do Codigo
+        Define os valores Fixos
+        '''
+        self.k = 0.15
+        self.beta = 0.3
         self.B_min = 26
         self.alpha = 0.2
         self.w = 0.3
@@ -126,4 +144,13 @@ class R2A_Panda(IR2A):
         pass
 
     def finalization(self):
-        pass
+        '''
+        Imprimir os valores ao final do código para validação
+        '''
+        print('--VALUES---------------------------')
+        print("K", self.k)
+        print("beta", self.beta)
+        print("B_min", self.B_min)
+        print("alpha", self.alpha)
+        print("er", self.er)
+        print('-----------------------------------')

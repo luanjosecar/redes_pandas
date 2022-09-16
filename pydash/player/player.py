@@ -238,7 +238,7 @@ class Player(SimpleModule):
         # set status to downloading a segment
         self.already_downloading = True
 
-        #print(f'Execution Time {self.timer.get_current_time()} > request: {segment_request}')
+        print(f'Execution Time {self.timer.get_current_time()} > request: {segment_request}')
 
         self.send_down(segment_request)
 
@@ -379,10 +379,6 @@ class Player(SimpleModule):
 
         
 
-        with open(f'./results/{file_name}.csv', 'w') as f:
-            writer = csv.writer(f)
-            writer.writerows(zip(x, y))
-
     def logVlines(self, log, file_name, title, y_axis, x_axis='execution time (s)'):
         items = log.items
 
@@ -409,9 +405,6 @@ class Player(SimpleModule):
         plt.cla()
         plt.close()
 
-        with open(f'./results/{file_name}.csv', 'w') as f:
-            writer = csv.writer(f)
-            writer.writerows(zip(x, y))
 
     def handle_xml_request(self, msg):
         # not applied
