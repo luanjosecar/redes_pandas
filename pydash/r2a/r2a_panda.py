@@ -47,9 +47,9 @@ class R2A_Panda(IR2A):
         '''
         Calculo para obter a taxa de tranferência esperada do sistema
         '''
-        base = self.k*self.timer_dif*self.w
-        value = -max(0,self.avarage_bandwith - self.estimate_throughput+ self.w )*self.k*self.timer_dif
-        return base + value + self.avarage_bandwith
+        mult_pos = self.k*self.timer_dif*self.w
+        mult_neg = -max(0,self.avarage_bandwith - self.estimate_throughput+ self.w )*self.k*self.timer_dif
+        return mult_pos + mult_neg + self.avarage_bandwith
 
     def smoothed_bandwidth(self):
         '''
@@ -97,7 +97,7 @@ class R2A_Panda(IR2A):
         
         #Fase 1 Estimativa da largura de banda 
         base_avg_bandwith = max(self.er*self.avarage_bandwith,self.get_bandwith_share())
-        self.avarage_bandwith = base_avg_bandwith
+        self.avarage_bandwith = base_avg_bEWMAandwith
 
         #Fase 2 Suavização para produzir a versão y[n]
         base_bandwith = max(self.er*self.result_bandwidth,self.smoothed_bandwidth())
@@ -105,8 +105,7 @@ class R2A_Panda(IR2A):
 
 
         # Seleciona a qualidade de video com base na largura de banda obtida
-        vd_quality = self.dead_zone_quant(base_bandwith)
-
+        #vd_quality = self.dead_zone_quant(base_bandwith)
         #new_request = max([ band for band in self.qi if band < vd_quality] + [self.qi[0]])
         new_request = self.dead_zone_one_up_down(base_bandwith)
         msg.add_quality_id(new_request)
@@ -152,5 +151,6 @@ class R2A_Panda(IR2A):
         print("beta", self.beta)
         print("B_min", self.B_min)
         print("alpha", self.alpha)
+        print("w", self.w)
         print("er", self.er)
         print('-----------------------------------')
