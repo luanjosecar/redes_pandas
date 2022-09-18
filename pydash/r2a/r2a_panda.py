@@ -97,7 +97,7 @@ class R2A_Panda(IR2A):
         
         #Fase 1 Estimativa da largura de banda 
         base_avg_bandwith = max(self.er*self.avarage_bandwith,self.get_bandwith_share())
-        self.avarage_bandwith = base_avg_bEWMAandwith
+        self.avarage_bandwith = base_avg_bandwith
 
         #Fase 2 Suavização para produzir a versão y[n]
         base_bandwith = max(self.er*self.result_bandwidth,self.smoothed_bandwidth())
@@ -134,7 +134,7 @@ class R2A_Panda(IR2A):
         Inicialização do Codigo
         Define os valores Fixos
         '''
-        self.k = 0.20
+        self.k = 0.15
         self.beta = 0.7
         self.B_min = 30
         self.alpha = 0.8
